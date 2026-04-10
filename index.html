@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProofPilot Comparison</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>Simple Comparison</h1>
+        <p>Compare two postings or rubrics to spot overlap and differences.</p>
+      </header>
+
+      <section class="inputs" aria-label="Inputs to compare">
+        <article>
+          <label for="inputA">Input A</label>
+          <textarea
+            id="inputA"
+            placeholder="Paste first job posting or rubric here..."
+          ></textarea>
+        </article>
+
+        <article>
+          <label for="inputB">Input B</label>
+          <textarea
+            id="inputB"
+            placeholder="Paste second job posting or rubric here..."
+          ></textarea>
+        </article>
+      </section>
+
+      <button id="compareBtn" type="button">Compare Inputs</button>
+
+      <section id="results" class="results hidden" aria-live="polite">
+        <article>
+          <h2>Overlapping Expectations</h2>
+          <ul id="overlapList"></ul>
+        </article>
+
+        <article>
+          <h2>Unique to Input A</h2>
+          <ul id="uniqueAList"></ul>
+        </article>
+
+        <article>
+          <h2>Unique to Input B</h2>
+          <ul id="uniqueBList"></ul>
+        </article>
+
+        <article>
+          <h2>Key Differences</h2>
+          <ul id="differencesList"></ul>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
