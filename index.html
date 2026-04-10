@@ -18,10 +18,23 @@
           Built for applicants, proposal teams, and hiring managers who need fast, explainable alignment decisions.
         </p>
         <div class="hero-actions">
-          <button id="compareBtn" type="button">Generate Readiness Analysis</button>
-          <button id="loadDemoBtn" type="button" class="secondary-btn">Load Expert Demo Scenario</button>
+          <button id="compareBtn" type="button">Analyze My Submission</button>
+          <button id="loadDemoBtn" type="button" class="secondary-btn">Try Demo (30 sec)</button>
         </div>
       </header>
+
+      <section class="before-after section-card" aria-label="Before and after framing">
+        <article>
+          <p class="snapshot-label">Before</p>
+          <h2>Messy, high-stakes input</h2>
+          <p>Long narratives, mixed priorities, and unclear rubric coverage make reviewers hard to predict.</p>
+        </article>
+        <article>
+          <p class="snapshot-label">After</p>
+          <h2>Structured readiness insight</h2>
+          <p>ProofPilot converts raw text into an alignment score, priority gap, and next-best action in seconds.</p>
+        </article>
+      </section>
 
       <section id="valueSnapshot" class="value-snapshot" aria-label="Top readiness insights">
         <article class="snapshot-card spotlight">
@@ -39,6 +52,14 @@
           <h2 id="topAction">--</h2>
           <p id="topActionText" class="snapshot-note">Prioritized recommendation appears after analysis.</p>
         </article>
+      </section>
+
+      <section id="priorityGapSection" class="priority-gap section-card" aria-label="Highest priority gap">
+        <p class="guide-kicker">Highest Priority Gap</p>
+        <h2 id="priorityGapHeadline">Run demo to surface your #1 blocker.</h2>
+        <p id="priorityGapDetail" class="metric-note">
+          We highlight the single issue with the highest readiness impact so teams know exactly what to fix first.
+        </p>
       </section>
 
       <section id="guidePanel" class="guide" aria-live="polite">

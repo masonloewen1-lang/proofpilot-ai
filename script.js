@@ -31,6 +31,8 @@ const topAction = document.getElementById('topAction');
 const topAlignmentText = document.getElementById('topAlignmentText');
 const topGapText = document.getElementById('topGapText');
 const topActionText = document.getElementById('topActionText');
+const priorityGapHeadline = document.getElementById('priorityGapHeadline');
+const priorityGapDetail = document.getElementById('priorityGapDetail');
 
 const strongList = document.getElementById('strongList');
 const missingList = document.getElementById('missingList');
@@ -83,15 +85,18 @@ const STOP_WORDS = new Set([
 const demoSample = {
   label: 'Product Marketing Manager vs Interview Rubric',
   inputA: `Drive product launches across sales, lifecycle, and customer success teams.
-Translate market research into GTM strategy and campaign briefs.
-Partner with Product to define messaging hierarchy and value propositions.
-Create KPI dashboards for activation, conversion, and retention.
-Own cross-functional launch retrospectives and risk mitigation plans.`,
+Candidate demonstrates GTM planning with clear launch milestones.
+Shows evidence of translating customer research into actionable positioning.
+Can align Product, Sales, and Success on messaging and enablement.
+Uses KPI frameworks to evaluate funnel performance.
+Led two launches with +19% activation and +12% expansion revenue.
+Built weekly enablement sessions for account executives and CSMs.`,
   inputB: `Candidate demonstrates GTM planning with clear launch milestones.
 Shows evidence of translating customer research into actionable positioning.
 Can align Product, Sales, and Success on messaging and enablement.
 Uses KPI frameworks to evaluate funnel performance.
-Identifies launch risks early and proposes mitigation actions.`
+Identifies launch risks early and proposes mitigation actions.
+Includes a repeatable experiment plan for underperforming lifecycle stages.`
 };
 
 const guideSteps = [
@@ -243,6 +248,20 @@ function updateTopInsights(overlapPct, uniqueA, uniqueB, overlap) {
   topActionText.textContent = uniqueB.length
     ? 'Address this target-side requirement first for highest readiness lift.'
     : 'Refine this area with stronger proof points to maximize differentiation.';
+
+  if (uniqueB.length) {
+    priorityGapHeadline.textContent = uniqueB[0];
+    priorityGapDetail.textContent =
+      'This criterion is missing from your draft and has the highest impact on evaluator confidence. Add direct evidence here first.';
+  } else if (uniqueA.length) {
+    priorityGapHeadline.textContent = `Refocus lower-value content: ${uniqueA[0]}`;
+    priorityGapDetail.textContent =
+      'Your draft contains content that may not move scoring. Reframe it to mirror rubric language and measurable outcomes.';
+  } else {
+    priorityGapHeadline.textContent = 'No critical gaps detected.';
+    priorityGapDetail.textContent =
+      'Your draft is tightly aligned. Focus next on tightening proof points and executive clarity.';
+  }
 }
 
 function updateWhatGreatLooksLike(overlap, uniqueA, uniqueB) {
@@ -468,13 +487,8 @@ function setupGuideInteractions() {
 }
 
 function bootGuidedExperience() {
-  const hasVisited = localStorage.getItem('proofpilot-guided-demo-v1');
-  if (!hasVisited) {
-    loadDemoScenario();
-    localStorage.setItem('proofpilot-guided-demo-v1', 'true');
-    guidePanel.classList.add('guide-pop');
-  }
-
+  loadDemoScenario();
+  guidePanel.classList.add('guide-pop');
   setActiveStep(0, false);
 }
 
