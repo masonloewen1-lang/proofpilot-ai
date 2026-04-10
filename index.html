@@ -13,7 +13,17 @@
         <p>Compare two postings or rubrics to spot overlap and differences.</p>
       </header>
 
-      <section class="inputs" aria-label="Inputs to compare">
+      <section id="guidePanel" class="guide" aria-live="polite">
+        <div>
+          <p class="guide-kicker">Guided demo</p>
+          <h2 id="guideTitle">Loading your first walkthrough...</h2>
+          <p id="guideMessage" class="guide-message"></p>
+          <div id="guideDots" class="guide-dots" aria-hidden="true"></div>
+        </div>
+        <button id="nextStepBtn" type="button" class="secondary-btn">Next step</button>
+      </section>
+
+      <section id="inputSection" class="inputs section-card" aria-label="Inputs to compare">
         <article>
           <label for="inputA">Input A</label>
           <textarea
@@ -33,7 +43,22 @@
 
       <button id="compareBtn" type="button">Compare Inputs</button>
 
-      <section id="results" class="results hidden" aria-live="polite">
+      <section id="scorecardSection" class="scorecard section-card" aria-label="Comparison scorecard">
+        <article>
+          <p>Overlap score</p>
+          <h3 id="overlapScore">--</h3>
+        </article>
+        <article>
+          <p>Coverage balance</p>
+          <h3 id="coverageBalance">--</h3>
+        </article>
+        <article>
+          <p>Priority gaps</p>
+          <h3 id="priorityGaps">--</h3>
+        </article>
+      </section>
+
+      <section id="outputSection" class="results hidden section-card" aria-live="polite">
         <article>
           <h2>Overlapping Expectations</h2>
           <ul id="overlapList"></ul>
@@ -53,6 +78,17 @@
           <h2>Key Differences</h2>
           <ul id="differencesList"></ul>
         </article>
+      </section>
+
+      <section id="evidenceSection" class="evidence section-card" aria-label="Evidence mode">
+        <div class="evidence-header">
+          <div>
+            <p class="guide-kicker">Evidence mode</p>
+            <h2>Trace every overlap back to source text</h2>
+          </div>
+          <button id="evidenceToggle" type="button" class="secondary-btn">Show evidence</button>
+        </div>
+        <ul id="evidenceList" class="hidden"></ul>
       </section>
     </main>
 
