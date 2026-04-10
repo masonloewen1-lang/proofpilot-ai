@@ -3,15 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ProofPilot Comparison</title>
+    <title>ProofPilot AI</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="app">
-      <header>
-        <h1>Simple Comparison</h1>
-        <p>Compare two postings or rubrics to spot overlap and differences.</p>
+      <header class="hero section-card">
+        <p class="hero-brand">ProofPilot AI</p>
+        <h1>AI-assisted submission readiness workspace for high-stakes opportunities.</h1>
+        <p class="hero-subheadline">
+          Compare your draft against target criteria, uncover critical gaps, and ship a stronger submission with evidence-backed guidance in minutes.
+        </p>
+        <p class="hero-supporting-line">
+          Built for applicants, proposal teams, and hiring managers who need fast, explainable alignment decisions.
+        </p>
+        <div class="hero-actions">
+          <button id="compareBtn" type="button">Generate Readiness Analysis</button>
+          <button id="loadDemoBtn" type="button" class="secondary-btn">Load Expert Demo Scenario</button>
+        </div>
       </header>
+
+      <section id="valueSnapshot" class="value-snapshot" aria-label="Top readiness insights">
+        <article class="snapshot-card spotlight">
+          <p class="snapshot-label">Overall alignment</p>
+          <h2 id="topAlignment">--</h2>
+          <p id="topAlignmentText" class="snapshot-note">Run an analysis to assess submission fit.</p>
+        </article>
+        <article class="snapshot-card">
+          <p class="snapshot-label">Biggest gap</p>
+          <h2 id="topGap">--</h2>
+          <p id="topGapText" class="snapshot-note">We will flag the highest-risk mismatch area.</p>
+        </article>
+        <article class="snapshot-card">
+          <p class="snapshot-label">Next best action</p>
+          <h2 id="topAction">--</h2>
+          <p id="topActionText" class="snapshot-note">Prioritized recommendation appears after analysis.</p>
+        </article>
+      </section>
 
       <section id="guidePanel" class="guide" aria-live="polite">
         <div>
@@ -23,59 +51,95 @@
         <button id="nextStepBtn" type="button" class="secondary-btn">Next step</button>
       </section>
 
-      <section id="inputSection" class="inputs section-card" aria-label="Inputs to compare">
+      <section id="inputSection" class="inputs section-card" aria-label="Submission and criteria inputs">
         <article>
-          <label for="inputA">Input A</label>
+          <label for="inputA">Submission draft or role brief</label>
           <textarea
             id="inputA"
-            placeholder="Paste first job posting or rubric here..."
+            placeholder="Paste your current submission, role brief, or opportunity narrative..."
           ></textarea>
         </article>
 
         <article>
-          <label for="inputB">Input B</label>
+          <label for="inputB">Target rubric, success profile, or evaluator criteria</label>
           <textarea
             id="inputB"
-            placeholder="Paste second job posting or rubric here..."
+            placeholder="Paste the benchmark rubric, interview scorecard, or selection criteria..."
           ></textarea>
         </article>
       </section>
 
-      <button id="compareBtn" type="button">Compare Inputs</button>
-
-      <section id="scorecardSection" class="scorecard section-card" aria-label="Comparison scorecard">
-        <article>
-          <p>Overlap score</p>
+      <section id="scorecardSection" class="scorecard section-card" aria-label="Readiness scorecards">
+        <article class="metric-card primary-metric">
+          <div class="metric-head">
+            <p>Strategic overlap score</p>
+            <span id="overlapStatus" class="status-pill">Waiting</span>
+          </div>
           <h3 id="overlapScore">--</h3>
+          <div class="progress-track"><div id="overlapBar" class="progress-fill"></div></div>
+          <p id="overlapInterpretation" class="metric-note">Measures direct alignment with target criteria.</p>
         </article>
-        <article>
-          <p>Coverage balance</p>
+        <article class="metric-card">
+          <div class="metric-head">
+            <p>Coverage balance</p>
+            <span id="coverageStatus" class="status-pill">Waiting</span>
+          </div>
           <h3 id="coverageBalance">--</h3>
+          <div class="progress-track"><div id="coverageBar" class="progress-fill"></div></div>
+          <p id="coverageInterpretation" class="metric-note">Shows whether both sides are comparably scoped.</p>
         </article>
-        <article>
-          <p>Priority gaps</p>
+        <article class="metric-card">
+          <div class="metric-head">
+            <p>Priority gaps</p>
+            <span id="gapsStatus" class="status-pill">Waiting</span>
+          </div>
           <h3 id="priorityGaps">--</h3>
+          <div class="progress-track"><div id="gapsBar" class="progress-fill"></div></div>
+          <p id="gapsInterpretation" class="metric-note">Count of high-value requirements still unmatched.</p>
         </article>
+      </section>
+
+      <section id="whatGreatSection" class="what-great section-card" aria-label="What great looks like">
+        <div class="panel-title-row">
+          <div>
+            <p class="guide-kicker">What Great Looks Like</p>
+            <h2>Submission excellence blueprint</h2>
+          </div>
+        </div>
+        <div class="what-great-grid">
+          <article>
+            <h3>Strong submissions include</h3>
+            <ul id="strongList"></ul>
+          </article>
+          <article>
+            <h3>Biggest missing pieces</h3>
+            <ul id="missingList"></ul>
+          </article>
+          <article>
+            <h3>Top 3 actions to stand out</h3>
+            <ol id="topActionsList"></ol>
+          </article>
+        </div>
       </section>
 
       <section id="outputSection" class="results hidden section-card" aria-live="polite">
         <article>
-          <h2>Overlapping Expectations</h2>
+          <h2>Aligned strengths</h2>
           <ul id="overlapList"></ul>
         </article>
 
         <article>
-          <h2>Unique to Input A</h2>
+          <h2>Submission-only content</h2>
           <ul id="uniqueAList"></ul>
         </article>
 
         <article>
-          <h2>Unique to Input B</h2>
+          <h2>Criteria not yet covered</h2>
           <ul id="uniqueBList"></ul>
         </article>
 
         <article>
-          <h2>Key Differences</h2>
+          <h2>Strategic differences</h2>
           <ul id="differencesList"></ul>
         </article>
       </section>
@@ -84,9 +148,13 @@
         <div class="evidence-header">
           <div>
             <p class="guide-kicker">Evidence mode</p>
-            <h2>Trace every overlap back to source text</h2>
+            <h2>Trust layer: inspect why each match was made</h2>
           </div>
-          <button id="evidenceToggle" type="button" class="secondary-btn">Show evidence</button>
+          <button id="evidenceToggle" type="button" class="secondary-btn">Show explainability</button>
+        </div>
+        <div id="evidenceFocus" class="evidence-focus hidden">
+          <p class="confidence-chip" id="confidenceChip">Confidence pending</p>
+          <p id="evidenceFocusText">Select a “Why?” action in Aligned strengths to inspect matched source lines.</p>
         </div>
         <ul id="evidenceList" class="hidden"></ul>
       </section>
