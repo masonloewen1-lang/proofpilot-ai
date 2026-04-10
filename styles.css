@@ -186,6 +186,36 @@ button:hover {
   font-size: 0.92rem;
 }
 
+.readiness-emphasis {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.45rem;
+  padding: 0.16rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.readiness-emphasis.good {
+  color: #0f7a54;
+  border: 1px solid #9ce2c3;
+  background: #eafaf2;
+}
+
+.readiness-emphasis.warn {
+  color: #8b5b11;
+  border: 1px solid #f2d291;
+  background: #fff6e8;
+}
+
+.readiness-emphasis.risk {
+  color: #9f2435;
+  border: 1px solid #efb6bf;
+  background: #fff0f3;
+}
+
 .priority-gap {
   border: 2px solid #9bb5ff;
   background: linear-gradient(135deg, #edf2ff 0%, #f7f9ff 100%);
@@ -197,6 +227,17 @@ button:hover {
   font-size: clamp(1.4rem, 2.7vw, 2rem);
   line-height: 1.22;
   color: #183a9f;
+}
+
+.priority-impact,
+.priority-time {
+  font-size: 0.86rem;
+  color: #415575;
+}
+
+.priority-impact {
+  margin-top: 0.62rem;
+  font-weight: 600;
 }
 
 .guide {

@@ -33,6 +33,8 @@ const topGapText = document.getElementById('topGapText');
 const topActionText = document.getElementById('topActionText');
 const priorityGapHeadline = document.getElementById('priorityGapHeadline');
 const priorityGapDetail = document.getElementById('priorityGapDetail');
+const priorityGapImpact = document.getElementById('priorityGapImpact');
+const priorityGapTime = document.getElementById('priorityGapTime');
 
 const strongList = document.getElementById('strongList');
 const missingList = document.getElementById('missingList');
@@ -203,19 +205,19 @@ function renderOverlapList(overlap) {
 function statusFromScore(value, invert = false) {
   if (invert) {
     if (value <= 2) {
-      return { label: 'Healthy', tone: 'good' };
+      return { label: 'On Track', tone: 'good' };
     }
     if (value <= 4) {
-      return { label: 'Watch', tone: 'warn' };
+      return { label: 'Needs Focus', tone: 'warn' };
     }
-    return { label: 'Risk', tone: 'risk' };
+    return { label: 'At Risk', tone: 'risk' };
   }
 
   if (value >= 75) {
-    return { label: 'Strong', tone: 'good' };
+    return { label: 'Ready', tone: 'good' };
   }
   if (value >= 45) {
-    return { label: 'Moderate', tone: 'warn' };
+    return { label: 'Needs Focus', tone: 'warn' };
   }
   return { label: 'At Risk', tone: 'risk' };
 }
@@ -227,10 +229,12 @@ function applyStatus(el, status) {
 
 function updateTopInsights(overlapPct, uniqueA, uniqueB, overlap) {
   topAlignment.textContent = `${overlapPct}% ready`;
-  topAlignmentText.textContent =
+  const readinessStatus = statusFromScore(overlapPct);
+  const readinessMessage =
     overlapPct >= 75
       ? 'Your draft is strongly aligned to current criteria.'
       : 'Alignment is improving, but top criteria still need sharper coverage.';
+  topAlignmentText.innerHTML = `<span class="readiness-emphasis ${readinessStatus.tone}">${readinessStatus.label}</span>${readinessMessage}`;
 
   if (!uniqueA.length && !uniqueB.length) {
     topGap.textContent = 'No major gaps';
@@ -262,6 +266,13 @@ function updateTopInsights(overlapPct, uniqueA, uniqueB, overlap) {
     priorityGapDetail.textContent =
       'Your draft is tightly aligned. Focus next on tightening proof points and executive clarity.';
   }
+
+  const gapWeight = uniqueB.length ? uniqueB.length : uniqueA.length ? 1 : 0;
+  const impactLift = gapWeight ? Math.max(4, Math.min(18, gapWeight * 4 + (overlapPct < 60 ? 4 : 0))) : 2;
+  const timeEstimate = gapWeight ? `${Math.max(25, gapWeight * 20)}–${Math.max(45, gapWeight * 30)} min` : '10–20 min';
+
+  priorityGapImpact.textContent = `Estimated impact: +${impactLift} readiness points after fixing this area.`;
+  priorityGapTime.textContent = `Estimated time to improve: ${timeEstimate}.`;
 }
 
 function updateWhatGreatLooksLike(overlap, uniqueA, uniqueB) {
