@@ -1,4 +1,5 @@
 const compareBtn = document.getElementById('compareBtn');
+const loadDemoBtn = document.getElementById('loadDemoBtn');
 const inputA = document.getElementById('inputA');
 const inputB = document.getElementById('inputB');
 const outputSection = document.getElementById('outputSection');
@@ -12,9 +13,35 @@ const overlapScore = document.getElementById('overlapScore');
 const coverageBalance = document.getElementById('coverageBalance');
 const priorityGaps = document.getElementById('priorityGaps');
 
+const overlapStatus = document.getElementById('overlapStatus');
+const coverageStatus = document.getElementById('coverageStatus');
+const gapsStatus = document.getElementById('gapsStatus');
+
+const overlapBar = document.getElementById('overlapBar');
+const coverageBar = document.getElementById('coverageBar');
+const gapsBar = document.getElementById('gapsBar');
+
+const overlapInterpretation = document.getElementById('overlapInterpretation');
+const coverageInterpretation = document.getElementById('coverageInterpretation');
+const gapsInterpretation = document.getElementById('gapsInterpretation');
+
+const topAlignment = document.getElementById('topAlignment');
+const topGap = document.getElementById('topGap');
+const topAction = document.getElementById('topAction');
+const topAlignmentText = document.getElementById('topAlignmentText');
+const topGapText = document.getElementById('topGapText');
+const topActionText = document.getElementById('topActionText');
+
+const strongList = document.getElementById('strongList');
+const missingList = document.getElementById('missingList');
+const topActionsList = document.getElementById('topActionsList');
+
 const evidenceSection = document.getElementById('evidenceSection');
 const evidenceToggle = document.getElementById('evidenceToggle');
 const evidenceList = document.getElementById('evidenceList');
+const evidenceFocus = document.getElementById('evidenceFocus');
+const confidenceChip = document.getElementById('confidenceChip');
+const evidenceFocusText = document.getElementById('evidenceFocusText');
 
 const guidePanel = document.getElementById('guidePanel');
 const guideTitle = document.getElementById('guideTitle');
@@ -24,6 +51,7 @@ const nextStepBtn = document.getElementById('nextStepBtn');
 
 const sectionMap = {
   input: document.getElementById('inputSection'),
+  value: document.getElementById('valueSnapshot'),
   output: document.getElementById('outputSection'),
   scorecard: document.getElementById('scorecardSection'),
   evidence: document.getElementById('evidenceSection')
@@ -69,23 +97,23 @@ Identifies launch risks early and proposes mitigation actions.`
 const guideSteps = [
   {
     key: 'input',
-    title: 'Step 1: Inputs are preloaded with our strongest sample demo.',
-    message: 'Review how each text is structured. You can edit either side to instantly explore alternate scenarios.'
+    title: 'Step 1: Start with your draft and target rubric side by side.',
+    message: 'Paste both inputs to evaluate fit, quality, and differentiation before submitting.'
   },
   {
-    key: 'output',
-    title: 'Step 2: Output highlights overlap and gaps immediately.',
-    message: 'Start with overlap for common ground, then scan unique items and differences for risk areas.'
+    key: 'value',
+    title: 'Step 2: Executive insights surface your fastest path to improvement.',
+    message: 'Overall alignment, biggest gap, and next action are designed for immediate decision support.'
   },
   {
     key: 'scorecard',
-    title: 'Step 3: Scorecard gives you an executive summary.',
-    message: 'Use overlap score, balance, and gap count to quickly assess quality without reading every bullet.'
+    title: 'Step 3: Scorecards translate complexity into a clear readiness signal.',
+    message: 'Use status indicators and interpretation notes to prioritize what to fix first.'
   },
   {
     key: 'evidence',
-    title: 'Step 4: Evidence mode proves every overlap.',
-    message: 'Toggle evidence to see the matched lines from each input so stakeholders can trust the analysis.'
+    title: 'Step 4: Evidence mode keeps every recommendation explainable.',
+    message: 'Use Why? to inspect the exact lines used in each match and build stakeholder trust.'
   }
 ];
 
@@ -118,7 +146,7 @@ function extractKeywords(lines) {
   );
 }
 
-function renderList(element, items, emptyMessage) {
+function renderList(element, items, emptyMessage, ordered = false) {
   element.innerHTML = '';
 
   if (!items.length) {
@@ -132,8 +160,156 @@ function renderList(element, items, emptyMessage) {
   items.forEach((item) => {
     const li = document.createElement('li');
     li.textContent = item;
+    if (ordered) {
+      li.setAttribute('data-ordered', 'true');
+    }
     element.appendChild(li);
   });
+}
+
+function renderOverlapList(overlap) {
+  overlapList.innerHTML = '';
+
+  if (!overlap.length) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'No direct overlap detected yet.';
+    overlapList.appendChild(li);
+    return;
+  }
+
+  overlap.forEach((item) => {
+    const li = document.createElement('li');
+    const text = document.createElement('span');
+    text.textContent = item;
+
+    const whyBtn = document.createElement('button');
+    whyBtn.type = 'button';
+    whyBtn.className = 'why-btn';
+    whyBtn.textContent = 'Why?';
+    whyBtn.setAttribute('data-evidence-key', lineKey(item));
+
+    li.appendChild(text);
+    li.appendChild(whyBtn);
+    overlapList.appendChild(li);
+  });
+}
+
+function statusFromScore(value, invert = false) {
+  if (invert) {
+    if (value <= 2) {
+      return { label: 'Healthy', tone: 'good' };
+    }
+    if (value <= 4) {
+      return { label: 'Watch', tone: 'warn' };
+    }
+    return { label: 'Risk', tone: 'risk' };
+  }
+
+  if (value >= 75) {
+    return { label: 'Strong', tone: 'good' };
+  }
+  if (value >= 45) {
+    return { label: 'Moderate', tone: 'warn' };
+  }
+  return { label: 'At Risk', tone: 'risk' };
+}
+
+function applyStatus(el, status) {
+  el.textContent = status.label;
+  el.className = `status-pill ${status.tone}`;
+}
+
+function updateTopInsights(overlapPct, uniqueA, uniqueB, overlap) {
+  topAlignment.textContent = `${overlapPct}% ready`;
+  topAlignmentText.textContent =
+    overlapPct >= 75
+      ? 'Your draft is strongly aligned to current criteria.'
+      : 'Alignment is improving, but top criteria still need sharper coverage.';
+
+  if (!uniqueA.length && !uniqueB.length) {
+    topGap.textContent = 'No major gaps';
+    topGapText.textContent = 'Both sides are tightly matched across current priorities.';
+  } else if (uniqueB.length >= uniqueA.length) {
+    topGap.textContent = `Missing ${uniqueB.length} target item(s)`;
+    topGapText.textContent = 'Criteria-side requirements are underrepresented in the draft.';
+  } else {
+    topGap.textContent = `${uniqueA.length} unmatched draft item(s)`;
+    topGapText.textContent = 'Some draft content may be lower value relative to target criteria.';
+  }
+
+  const nextAction = uniqueB[0] || uniqueA[0] || overlap[0] || 'Add target evidence and measurable impact statements.';
+  topAction.textContent = nextAction.slice(0, 62) + (nextAction.length > 62 ? '…' : '');
+  topActionText.textContent = uniqueB.length
+    ? 'Address this target-side requirement first for highest readiness lift.'
+    : 'Refine this area with stronger proof points to maximize differentiation.';
+}
+
+function updateWhatGreatLooksLike(overlap, uniqueA, uniqueB) {
+  const strengths = overlap.slice(0, 4);
+  const missing = uniqueB.slice(0, 4);
+  const actions = [
+    uniqueB[0]
+      ? `Add explicit proof for: ${uniqueB[0]}`
+      : 'Strengthen quantified outcomes for your strongest aligned theme.',
+    uniqueB[1]
+      ? `Mirror evaluator language around: ${uniqueB[1]}`
+      : 'Improve clarity by using criteria-native phrasing in key sections.',
+    uniqueA[0]
+      ? `Reframe lower-priority content to support: ${uniqueA[0]}`
+      : 'Use concise, evidence-rich bullets to maintain reviewer confidence.'
+  ];
+
+  renderList(
+    strongList,
+    strengths.length ? strengths : ['Clear criterion mapping', 'Specific evidence statements', 'Consistent strategic language'],
+    'Run analysis to see strengths.'
+  );
+  renderList(
+    missingList,
+    missing.length ? missing : ['No critical missing criteria detected.'],
+    'Run analysis to see missing pieces.'
+  );
+  renderList(topActionsList, actions, 'Run analysis to generate actions.', true);
+}
+
+function updateScorecard(overlapCount, uniqueACount, uniqueBCount) {
+  const total = overlapCount + uniqueACount + uniqueBCount;
+  const overlapPct = total ? Math.round((overlapCount / total) * 100) : 0;
+  const balancePct =
+    uniqueACount + uniqueBCount
+      ? Math.round((Math.min(uniqueACount, uniqueBCount) / Math.max(uniqueACount, uniqueBCount)) * 100)
+      : 100;
+  const gapCount = uniqueACount + uniqueBCount;
+
+  overlapScore.textContent = `${overlapPct}%`;
+  coverageBalance.textContent = `${balancePct}%`;
+  priorityGaps.textContent = `${gapCount}`;
+
+  overlapBar.style.width = `${overlapPct}%`;
+  coverageBar.style.width = `${balancePct}%`;
+  gapsBar.style.width = `${Math.min(gapCount * 12, 100)}%`;
+
+  applyStatus(overlapStatus, statusFromScore(overlapPct));
+  applyStatus(coverageStatus, statusFromScore(balancePct));
+  applyStatus(gapsStatus, statusFromScore(gapCount, true));
+
+  overlapInterpretation.textContent =
+    overlapPct >= 75
+      ? 'Strong strategic fit. Focus on sharpening proof and differentiation.'
+      : 'Moderate-to-low overlap. Prioritize mapping draft claims to rubric language.';
+
+  coverageInterpretation.textContent =
+    balancePct >= 70
+      ? 'Scope is balanced across both texts.'
+      : 'Scope imbalance detected. One side is significantly broader than the other.';
+
+  gapsInterpretation.textContent =
+    gapCount <= 2
+      ? 'Only a few key requirements remain unmatched.'
+      : 'Multiple criteria gaps detected. Prioritize top three immediately.';
+
+  return { overlapPct, balancePct, gapCount };
 }
 
 function renderEvidence(evidence) {
@@ -149,20 +325,26 @@ function renderEvidence(evidence) {
 
   evidence.forEach((item) => {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>Matched concept:</strong> ${item.key}<br><span>Input A:</span> ${item.a}<br><span>Input B:</span> ${item.b}`;
+    li.innerHTML = `<strong>Matched concept:</strong> ${item.key}<br><span>Submission draft:</span> ${item.a}<br><span>Target criteria:</span> ${item.b}`;
     evidenceList.appendChild(li);
   });
 }
 
-function updateScorecard(overlapCount, uniqueACount, uniqueBCount) {
-  const total = overlapCount + uniqueACount + uniqueBCount;
-  const overlapPct = total ? Math.round((overlapCount / total) * 100) : 0;
-  const balancePct =
-    uniqueACount + uniqueBCount ? Math.round((Math.min(uniqueACount, uniqueBCount) / Math.max(uniqueACount, uniqueBCount)) * 100) : 100;
+function showEvidenceFor(key) {
+  const selected = latestEvidence.find((item) => item.key === key);
+  if (!selected) {
+    return;
+  }
 
-  overlapScore.textContent = `${overlapPct}%`;
-  coverageBalance.textContent = `${balancePct}%`;
-  priorityGaps.textContent = `${uniqueACount + uniqueBCount}`;
+  evidenceVisible = true;
+  evidenceList.classList.remove('hidden');
+  evidenceFocus.classList.remove('hidden');
+  evidenceSection.classList.add('cue-soft');
+  evidenceToggle.textContent = 'Hide explainability';
+
+  const confidenceLevel = key.length > 20 ? 'High confidence match' : 'Moderate confidence match';
+  confidenceChip.textContent = confidenceLevel;
+  evidenceFocusText.textContent = `“${selected.a}” aligns with “${selected.b}” through shared intent and keyword overlap.`;
 }
 
 function setActiveStep(index, shouldScroll = true) {
@@ -225,25 +407,28 @@ function runComparison() {
 
   const differences = [];
   if (uniqueA.length) {
-    differences.push(`Input A has ${uniqueA.length} unique requirement(s).`);
+    differences.push(`Submission draft has ${uniqueA.length} unique requirement(s).`);
   }
   if (uniqueB.length) {
-    differences.push(`Input B has ${uniqueB.length} unique requirement(s).`);
+    differences.push(`Target criteria has ${uniqueB.length} unique requirement(s).`);
   }
   if (sharedDifferenceKeywords.length) {
     differences.push(
-      `Both mention distinct phrasing around: ${sharedDifferenceKeywords.slice(0, 8).join(', ')}.`
+      `Both reference related concepts with distinct phrasing around: ${sharedDifferenceKeywords.slice(0, 8).join(', ')}.`
     );
   }
 
-  renderList(overlapList, overlap, 'No direct overlap detected yet.');
-  renderList(uniqueAList, uniqueA, 'No unique requirements in Input A.');
-  renderList(uniqueBList, uniqueB, 'No unique requirements in Input B.');
+  renderOverlapList(overlap);
+  renderList(uniqueAList, uniqueA, 'No extra draft-only requirements found.');
+  renderList(uniqueBList, uniqueB, 'No uncovered target criteria found.');
   renderList(differencesList, differences, 'No key differences found.');
 
   latestEvidence = evidence;
   renderEvidence(latestEvidence);
-  updateScorecard(overlap.length, uniqueA.length, uniqueB.length);
+
+  const { overlapPct } = updateScorecard(overlap.length, uniqueA.length, uniqueB.length);
+  updateTopInsights(overlapPct, uniqueA, uniqueB, overlap);
+  updateWhatGreatLooksLike(overlap, uniqueA, uniqueB);
 
   outputSection.classList.remove('hidden');
 }
@@ -251,8 +436,15 @@ function runComparison() {
 function toggleEvidence() {
   evidenceVisible = !evidenceVisible;
   evidenceList.classList.toggle('hidden', !evidenceVisible);
+  evidenceFocus.classList.toggle('hidden', !evidenceVisible);
   evidenceSection.classList.toggle('cue-soft', evidenceVisible);
-  evidenceToggle.textContent = evidenceVisible ? 'Hide evidence' : 'Show evidence';
+  evidenceToggle.textContent = evidenceVisible ? 'Hide explainability' : 'Show explainability';
+}
+
+function loadDemoScenario() {
+  inputA.value = demoSample.inputA;
+  inputB.value = demoSample.inputB;
+  runComparison();
 }
 
 function setupGuideInteractions() {
@@ -278,9 +470,7 @@ function setupGuideInteractions() {
 function bootGuidedExperience() {
   const hasVisited = localStorage.getItem('proofpilot-guided-demo-v1');
   if (!hasVisited) {
-    inputA.value = demoSample.inputA;
-    inputB.value = demoSample.inputB;
-    runComparison();
+    loadDemoScenario();
     localStorage.setItem('proofpilot-guided-demo-v1', 'true');
     guidePanel.classList.add('guide-pop');
   }
@@ -288,7 +478,22 @@ function bootGuidedExperience() {
   setActiveStep(0, false);
 }
 
+overlapList.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const key = target.getAttribute('data-evidence-key');
+  if (!key) {
+    return;
+  }
+
+  showEvidenceFor(key);
+});
+
 compareBtn.addEventListener('click', runComparison);
+loadDemoBtn.addEventListener('click', loadDemoScenario);
 evidenceToggle.addEventListener('click', toggleEvidence);
 nextStepBtn.addEventListener('click', moveToNextStep);
 
