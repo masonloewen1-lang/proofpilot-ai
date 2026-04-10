@@ -125,6 +125,35 @@ button:hover {
   border: 1px solid rgba(31, 60, 136, 0.25);
 }
 
+.analysis-loader {
+  text-align: center;
+  font-weight: 700;
+  color: #1b3e9e;
+}
+
+.analysis-loader p {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+.analysis-dots::after {
+  content: '...';
+  display: inline-block;
+  width: 1.2em;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: dotPulse 1s steps(4, end) infinite;
+}
+
+@keyframes dotPulse {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 1.2em;
+  }
+}
+
 .value-snapshot {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -165,6 +194,11 @@ button:hover {
 .snapshot-card.spotlight {
   background: linear-gradient(180deg, #edf2ff 0%, #f7f9ff 100%);
   border-color: #b9c9ff;
+}
+
+.snapshot-card.attention-glow {
+  border-color: #5b84ff;
+  box-shadow: 0 0 0 3px rgba(91, 132, 255, 0.35), 0 12px 24px rgba(46, 99, 243, 0.28);
 }
 
 .snapshot-label {

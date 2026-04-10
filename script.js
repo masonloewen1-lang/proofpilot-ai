@@ -3,6 +3,7 @@ const loadDemoBtn = document.getElementById('loadDemoBtn');
 const inputA = document.getElementById('inputA');
 const inputB = document.getElementById('inputB');
 const outputSection = document.getElementById('outputSection');
+const analysisLoader = document.getElementById('analysisLoader');
 
 const overlapList = document.getElementById('overlapList');
 const uniqueAList = document.getElementById('uniqueAList');
@@ -31,6 +32,7 @@ const topAction = document.getElementById('topAction');
 const topAlignmentText = document.getElementById('topAlignmentText');
 const topGapText = document.getElementById('topGapText');
 const topActionText = document.getElementById('topActionText');
+const nextBestActionCard = topAction.closest('.snapshot-card');
 const priorityGapHeadline = document.getElementById('priorityGapHeadline');
 const priorityGapDetail = document.getElementById('priorityGapDetail');
 const priorityGapImpact = document.getElementById('priorityGapImpact');
@@ -127,6 +129,7 @@ const guideSteps = [
 let currentStep = 0;
 let evidenceVisible = false;
 let latestEvidence = [];
+let nextActionHighlightTimeoutId = null;
 
 function cleanLine(line) {
   return line.replace(/\s+/g, ' ').trim();
@@ -463,6 +466,37 @@ function runComparison() {
   outputSection.classList.remove('hidden');
 }
 
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function runComparisonFlow() {
+  outputSection.classList.add('hidden');
+  analysisLoader.classList.remove('hidden');
+  await wait(1000);
+  runComparison();
+  analysisLoader.classList.add('hidden');
+  outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function highlightNextBestAction() {
+  if (!nextBestActionCard) {
+    return;
+  }
+
+  nextBestActionCard.classList.add('attention-glow');
+  if (nextActionHighlightTimeoutId) {
+    window.clearTimeout(nextActionHighlightTimeoutId);
+  }
+
+  nextActionHighlightTimeoutId = window.setTimeout(() => {
+    nextBestActionCard.classList.remove('attention-glow');
+    nextActionHighlightTimeoutId = null;
+  }, 2000);
+}
+
 function toggleEvidence() {
   evidenceVisible = !evidenceVisible;
   evidenceList.classList.toggle('hidden', !evidenceVisible);
@@ -471,10 +505,11 @@ function toggleEvidence() {
   evidenceToggle.textContent = evidenceVisible ? 'Hide explainability' : 'Show explainability';
 }
 
-function loadDemoScenario() {
+async function loadDemoScenario() {
   inputA.value = demoSample.inputA;
   inputB.value = demoSample.inputB;
-  runComparison();
+  await runComparisonFlow();
+  highlightNextBestAction();
 }
 
 function setupGuideInteractions() {
@@ -498,7 +533,8 @@ function setupGuideInteractions() {
 }
 
 function bootGuidedExperience() {
-  loadDemoScenario();
+  analysisLoader.classList.add('hidden');
+  outputSection.classList.add('hidden');
   guidePanel.classList.add('guide-pop');
   setActiveStep(0, false);
 }
@@ -517,7 +553,7 @@ overlapList.addEventListener('click', (event) => {
   showEvidenceFor(key);
 });
 
-compareBtn.addEventListener('click', runComparison);
+compareBtn.addEventListener('click', runComparisonFlow);
 loadDemoBtn.addEventListener('click', loadDemoScenario);
 evidenceToggle.addEventListener('click', toggleEvidence);
 nextStepBtn.addEventListener('click', moveToNextStep);
