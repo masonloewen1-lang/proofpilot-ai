@@ -3,6 +3,7 @@ const loadDemoBtn = document.getElementById('loadDemoBtn');
 const inputA = document.getElementById('inputA');
 const inputB = document.getElementById('inputB');
 const outputSection = document.getElementById('outputSection');
+const analysisLoader = document.getElementById('analysisLoader');
 
 const overlapList = document.getElementById('overlapList');
 const uniqueAList = document.getElementById('uniqueAList');
@@ -463,6 +464,21 @@ function runComparison() {
   outputSection.classList.remove('hidden');
 }
 
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function runComparisonFlow() {
+  outputSection.classList.add('hidden');
+  analysisLoader.classList.remove('hidden');
+  await wait(1000);
+  runComparison();
+  analysisLoader.classList.add('hidden');
+  outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function toggleEvidence() {
   evidenceVisible = !evidenceVisible;
   evidenceList.classList.toggle('hidden', !evidenceVisible);
@@ -474,7 +490,7 @@ function toggleEvidence() {
 function loadDemoScenario() {
   inputA.value = demoSample.inputA;
   inputB.value = demoSample.inputB;
-  runComparison();
+  runComparisonFlow();
 }
 
 function setupGuideInteractions() {
@@ -498,7 +514,8 @@ function setupGuideInteractions() {
 }
 
 function bootGuidedExperience() {
-  loadDemoScenario();
+  analysisLoader.classList.add('hidden');
+  outputSection.classList.add('hidden');
   guidePanel.classList.add('guide-pop');
   setActiveStep(0, false);
 }
@@ -517,7 +534,7 @@ overlapList.addEventListener('click', (event) => {
   showEvidenceFor(key);
 });
 
-compareBtn.addEventListener('click', runComparison);
+compareBtn.addEventListener('click', runComparisonFlow);
 loadDemoBtn.addEventListener('click', loadDemoScenario);
 evidenceToggle.addEventListener('click', toggleEvidence);
 nextStepBtn.addEventListener('click', moveToNextStep);
